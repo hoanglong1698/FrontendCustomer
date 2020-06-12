@@ -1,4 +1,4 @@
-# frontendcustomer
+# FrontendCustomer
 
 ## Project setup
 ```
