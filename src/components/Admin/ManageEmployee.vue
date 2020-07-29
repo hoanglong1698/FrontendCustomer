@@ -13,7 +13,7 @@
             <b-form-input v-model="id" type="number" readonly placeholder="ID nhân viên"></b-form-input>
           </b-form-group>
 
-          <b-button style="width: 300px" type="button" variant="danger" @click="onDel">Xóa</b-button>
+          <b-button style="width: 300px" class="mb-4" type="button" variant="danger" @click="onDelete">Xóa</b-button>
         </b-collapse>
       </b-form>
     </div>
@@ -47,7 +47,13 @@
           </b-form-group>
 
           <b-form-group label="Ngày sinh">
-            <b-form-input v-model="dob" :text="dob" placeholder="ngày/tháng/năm" class="mb-2" readonly></b-form-input>
+            <b-form-input
+              v-model="dob"
+              :text="dob"
+              placeholder="ngày/tháng/năm"
+              class="mb-2"
+              readonly
+            ></b-form-input>
           </b-form-group>
 
           <b-button style="width: 300px" type="button" variant="success" @click="onUpdate">Cập nhật</b-button>
@@ -57,19 +63,24 @@
     <div style="margin-top: 50px">
       <h6>Danh sách nhân viên ngân hàng</h6>
       <b-table
+        striped
         hover
         selectable
+        outlined
         :select-mode="selectMode"
-        :items="EmployeeList"
+        :items="ListEmployee"
         :fields="Fields"
         @row-selected="onRowSelected"
         sticky-header
+        head-variant="light"
       ></b-table>
     </div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   data() {
     return {
@@ -82,70 +93,48 @@ export default {
       isDel: false,
       selectMode: "single",
       Fields: [],
-      EmployeeList: []
     };
   },
-  mounted() {
-    //this.$store.dispatch("employeeList");
 
+  computed: {
+    ...mapGetters(["isSucceed", "ErrorMessage", "ListEmployee"]),
+  },
+
+  mounted() {
     this.Fields = [
       {
         key: "id",
         label: "ID",
-        sortable: false
+        sortable: false,
       },
       {
-        key: "full_name",
+        key: "name",
         label: "Họ tên",
-        sortable: true
+        sortable: true,
       },
       {
         key: "email",
         label: "Email",
-        sortable: false
+        sortable: false,
       },
       {
         key: "phone",
         label: "Số điện thoại",
-        sortable: false
+        sortable: false,
       },
       {
-        key: "dob",
-        label: "Ngày sinh",
-        sortable: false
-      }
+        key: "userName",
+        label: "Username",
+        sortable: false,
+      },
+      {
+        key: "createdAt",
+        label: "Ngày tạo",
+        sortable: true,
+      },
     ];
 
-    this.EmployeeList = [
-      {
-        id: "123456789",
-        full_name: "Nguyen Van A",
-        email: "nguyenvana@gmail.com",
-        phone: "0123456789",
-        dob: "28/06/1996"
-      },
-      {
-        id: "343265324",
-        full_name: "Tran Thi C",
-        email: "tranthic@gmail.com",
-        phone: "0640902343",
-        dob: "24/06/1990"
-      },
-      {
-        id: "503940901",
-        full_name: "Nguyen D",
-        email: "nguyend@gmail.com",
-        phone: "080592645",
-        dob: "03/11/1995"
-      },
-      {
-        id: "256435876",
-        full_name: "Lam Thi B",
-        email: "lamthib@gmail.com",
-        phone: "096090341",
-        dob: "02/04/2001"
-      }
-    ];
+    this.$store.dispatch("getListEmployee");
   },
 
   methods: {
@@ -163,7 +152,7 @@ export default {
         FullName: this.fullname,
         Email: this.email,
         Phone: this.phone,
-        DoB: this.dob
+        DoB: this.dob,
       };
       alert(JSON.stringify(info));
       //this.$store.dispatch("updateEmployee", info);
@@ -175,7 +164,15 @@ export default {
       }, 6000);
     },
 
-    onDel() {
+    onDelete() {
+      const info = {
+        id: this.id,
+        FullName: this.fullname,
+        Email: this.email,
+        Phone: this.phone,
+        DoB: this.dob,
+      };
+      console.log(info);
       //this.$store.dispatch("deleteEmployee", this.id);
       setTimeout(() => {
         this.isDel = true;
@@ -183,8 +180,8 @@ export default {
       setTimeout(() => {
         this.isDel = false;
       }, 6000);
-    }
-  }
+    },
+  },
 };
 </script>
 

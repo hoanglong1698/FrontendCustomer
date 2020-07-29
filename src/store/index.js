@@ -26,6 +26,7 @@ export default new Vuex.Store({
     accessToken: '',
     role: '',
     Transactions: [],
+    ListEmployee: [],
   },
 
   getters: {
@@ -37,6 +38,9 @@ export default new Vuex.Store({
     },
     Transactions(state) {
       return state.Transactions;
+    },
+    ListEmployee(state) {
+      return state.ListEmployee;
     },
     isSucceed(state) {
       return state.isSucceed
@@ -100,6 +104,10 @@ export default new Vuex.Store({
 
     TRANSACTIONS(state, payload) {
       state.Transactions = payload;
+    },
+
+    LISTEMPLOYEE(state, payload) {
+      state.ListEmployee = payload;
     },
 
     MODAL_CREATE_CUSTOMER_MESSAGE(state, payload) {
@@ -251,6 +259,24 @@ export default new Vuex.Store({
           console.log(error);
         });
     },
+
+    async getListEmployee(ctx) {
+      await axios.get('https://i-banking.herokuapp.com/lh-bank/get-employee/', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+        }
+      })
+        .then(function (response) {
+          ctx.commit('IS_SUCCEED', true);
+          ctx.commit('LISTEMPLOYEE', response.data.data.employees);
+        })
+        .catch(function (error) {
+          ctx.commit('IS_SUCCEED', false);
+          console.log(error);
+        });
+    },
+
   },
   modules: {
   }
