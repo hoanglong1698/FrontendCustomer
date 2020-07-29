@@ -4,9 +4,13 @@
       <div class="form">
         <b-form @submit="onSubmit">
           <b-form-group>
+            <b-spinner v-if="isLoading" label="Loading..."></b-spinner>
             <b-alert v-if="isSucceed && isRegister" variant="success" show>Tạo tài khoản thành công</b-alert>
-            <b-alert v-if="!isSucceed && isRegister" variant="danger" show>Tạo tài khoản thất bại</b-alert>
-            <b-alert v-if="!isSucceed && isRegister" variant="danger" show>{{ErrorMessage}}</b-alert>
+            <b-alert
+              v-if="!isSucceed && isRegister"
+              variant="danger"
+              show
+            >Tạo tài khoản thất bại, vui lòng kiểm tra lại thông tin đã nhập</b-alert>
           </b-form-group>
 
           <b-form-group label="Tên đăng nhập:">
@@ -87,10 +91,10 @@ export default {
         fullname: "",
         phone: "",
         email: "",
-        dob: ""
+        dob: "",
       },
       isMatch: true,
-      isRegister: false
+      isRegister: false,
     };
   },
   methods: {
@@ -102,7 +106,7 @@ export default {
         FullName: this.form.fullname,
         Phone: this.form.phone,
         Email: this.form.email,
-        DoB: this.form.dob
+        DoB: this.form.dob,
       };
       //this.$store.dispatch("addEmployee", employee);
       alert(JSON.stringify(employee));
@@ -121,8 +125,8 @@ export default {
       } else {
         this.isMatch = false;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

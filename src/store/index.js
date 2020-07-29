@@ -9,11 +9,17 @@ export default new Vuex.Store({
     ErrorMessage: '',
     isSucceed: false,
     TotalBalance: '',
+
     ModalCreateCustomerMessage: '',
     ModalCreateCustomerUsername: '',
     ModalCreateCustomerPassword: '',
     ModalCreateCustomerCardNumber: '',
     ModalCreateCustomerCardName: '',
+
+    ModalCreateEmployeeMessage: '',
+    ModalCreateEmployeeUsername: '',
+    ModalCreateEmployeePassword: '',
+
     correctAuthInfo: true,
     accessToken: '',
     role: '',
@@ -33,6 +39,7 @@ export default new Vuex.Store({
     isSucceed(state) {
       return state.isSucceed
     },
+
     ModalCreateCustomerMessage(state) {
       return state.ModalCreateCustomerMessage;
     },
@@ -48,6 +55,17 @@ export default new Vuex.Store({
     ModalCreateCustomerCardName(state) {
       return state.ModalCreateCustomerCardName;
     },
+
+    ModalCreateEmployeeMessage(state) {
+      return state.ModalCreateEmployeeMessage;
+    },
+    ModalCreateEmployeeUsername(state) {
+      return state.ModalCreateEmployeeUsername;
+    },
+    ModalCreateEmployeePassword(state) {
+      return state.ModalCreateEmployeePassword;
+    },
+
     CorrectAuthInfo(state) {
       return state.correctAuthInfo;
     },
@@ -91,6 +109,18 @@ export default new Vuex.Store({
 
     MODAL_CREATE_CUSTOMER_CARDNAME(state, payload) {
       state.ModalCreateCustomerCardName = payload;
+    },
+
+    MODAL_CREATE_EMPLOYEE_MESSAGE(state, payload) {
+      state.ModalCreateEmployeeMessage = payload;
+    },
+
+    MODAL_CREATE_EMPLOYEE_USERNAME(state, payload) {
+      state.ModalCreateEmployeeUsername = payload;
+    },
+
+    MODAL_CREATE_EMPLOYEE_PASSWORD(state, payload) {
+      state.ModalCreateEmployeePassword = payload;
     },
 
     LOGIN(state) {
@@ -180,6 +210,27 @@ export default new Vuex.Store({
         })
         .catch(function (error) {
           ctx.commit('IS_SUCCEED', false);
+          console.log(error);
+        });
+    },
+
+    async createEmployee(ctx, employee) {
+      await axios.post('https://i-banking.herokuapp.com/lh-bank/register-employee', employee, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+        }
+      })
+        .then(function (response) {
+          console.log(response.data);
+          ctx.commit('IS_SUCCEED', true);
+          ctx.commit('MODAL_CREATE_EMPLOYEE_MESSAGE', response.data.message);
+          ctx.commit('MODAL_CREATE_EMPLOYEE_USERNAME', response.data.data.userName);
+          ctx.commit('MODAL_CREATE_EMPLOYEE_PASSWORD', response.data.data.password);
+        })
+        .catch(function (error) {
+          ctx.commit('IS_SUCCEED', false);
+          ctx.commit('MODAL_CREATE_EMPLOYEE_MESSAGE', 'Thất bại');
           console.log(error);
         });
     },
