@@ -54,15 +54,15 @@
           </div>
 
           <div class="m-2">
-            <b-button v-if="isSucceed" v-b-modal.modal-prevent-closing>Xem thông tin tài khoản vừa tạo</b-button>
+            <b-button
+              v-if="isSucceed && showResult"
+              v-b-modal.modal-prevent-closing
+            >Xem thông tin tài khoản vừa tạo</b-button>
 
             <b-modal
               id="modal-prevent-closing"
               ref="modal"
               title="Kết quả đăng ký"
-              @show="resetModal"
-              @hidden="resetModal"
-              @ok="handleOk"
             >
               <b-row>
                 <b-col sm="3">
@@ -126,10 +126,11 @@ export default {
         name: "",
         email: "",
         phone: "",
-        cardname: ""
+        cardname: "",
       },
       isRegister: false,
-      isLoading: false
+      isLoading: false,
+      showResult: false,
     };
   },
 
@@ -141,32 +142,34 @@ export default {
       "ModalCreateCustomerUsername",
       "ModalCreateCustomerPassword",
       "ModalCreateCustomerCardNumber",
-      "ModalCreateCustomerCardName"
-    ])
+      "ModalCreateCustomerCardName",
+    ]),
   },
 
   methods: {
     onSubmit(evt) {
+      this.showResult = false;
       evt.preventDefault();
+      this.isLoading = true;
       const customer = {
         email: this.form.email,
         name: this.form.name,
         phone: this.form.phone,
         cardName: this.form.cardname,
-        adminId: 1
       };
       this.$store.dispatch("createCustomer", customer);
-      this.isLoading = true;
 
       setTimeout(() => {
         this.isRegister = true;
-         this.isLoading = false;
+        this.isLoading = false;
+        this.showResult = true;
       }, 3000);
       setTimeout(() => {
         this.isRegister = false;
+        this.isLoading = false;
       }, 7000);
-    }
-  }
+    },
+  },
 };
 </script>
 

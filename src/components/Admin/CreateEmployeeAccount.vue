@@ -46,7 +46,7 @@
 
           <div class="m-2">
             <b-button
-              v-if="isSucceed && !isLoading"
+              v-if="isSucceed && showResult"
               v-b-modal.modal-prevent-closing
             >Xem thông tin tài khoản vừa tạo</b-button>
 
@@ -54,9 +54,6 @@
               id="modal-prevent-closing"
               ref="modal"
               title="Kết quả đăng ký"
-              @show="resetModal"
-              @hidden="resetModal"
-              @ok="handleOk"
             >
               <b-row>
                 <b-col sm="3">
@@ -132,6 +129,7 @@ export default {
       },
       isRegister: false,
       isLoading: false,
+      showResult: false,
     };
   },
 
@@ -150,6 +148,7 @@ export default {
 
   methods: {
     onSubmit(evt) {
+      this.showResult = false;
       evt.preventDefault();
       const employee = {
         email: this.form.email,
@@ -159,10 +158,10 @@ export default {
 
       this.$store.dispatch("createEmployee", employee);
       this.isLoading = true;
-
       setTimeout(() => {
         this.isRegister = true;
         this.isLoading = false;
+        this.showResult = true;
       }, 3000);
       setTimeout(() => {
         this.isRegister = false;
