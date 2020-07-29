@@ -175,7 +175,6 @@ export default new Vuex.Store({
         }
       })
         .then(function (response) {
-          console.log('so du:', response.data.data.totalBalance);
           ctx.commit('IS_SUCCEED', true);
           ctx.commit('TOTAL_BALANCE', response.data.data.totalBalance);
         })
@@ -188,7 +187,8 @@ export default new Vuex.Store({
     async createCustomer(ctx, customer) {
       await axios.post('https://i-banking.herokuapp.com/lh-bank/register', customer, {
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
         }
       })
         .then(function (response) {
@@ -226,9 +226,21 @@ export default new Vuex.Store({
         }
       })
         .then(function (response) {
-          console.log('transactions:', response.data.data.transactions);
           ctx.commit('IS_SUCCEED', true);
-          ctx.commit('TRANSACTIONS', response.data.data.transactions);
+          if (response.data.data.transactions != null) {
+            ctx.commit('TRANSACTIONS', response.data.data.transactions);
+          }
+          else {
+            const data = [
+              {
+                "cardNumber": "Chưa có giao dịch nào!",
+              }
+            ]
+            setTimeout(() => {
+              ctx.commit('TRANSACTIONS', data);
+            }, 2000);
+            
+          }
         })
         .catch(function (error) {
           ctx.commit('IS_SUCCEED', false);
@@ -277,6 +289,43 @@ export default new Vuex.Store({
         });
     },
 
+    async deleteEmployee(ctx, id) {
+      await axios.post('https://i-banking.herokuapp.com/lh-bank/update-employee',
+        {
+          id: id,
+          action: "DELETE"
+        }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+        }
+      })
+        .then(function (response) {
+          console.log(response.data);
+          ctx.commit('IS_SUCCEED', true);
+        })
+        .catch(function (error) {
+          ctx.commit('IS_SUCCEED', false);
+          console.log(error);
+        });
+    },
+
+    async updateEmployee(ctx, info) {
+      await axios.post('https://i-banking.herokuapp.com/lh-bank/update-employee', info, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+        }
+      })
+        .then(function (response) {
+          console.log(response.data);
+          ctx.commit('IS_SUCCEED', true);
+        })
+        .catch(function (error) {
+          ctx.commit('IS_SUCCEED', false);
+          console.log(error);
+        });
+    },
   },
   modules: {
   }

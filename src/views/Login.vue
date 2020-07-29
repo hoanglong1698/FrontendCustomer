@@ -2,6 +2,7 @@
   <div>
     <div class="container">
       <h1 class="text-center mt-4">Đăng Nhập</h1>
+      <b-spinner v-if="isLoading" label="Loading..."></b-spinner>
       <div class="row myform">
         <form @submit="onLogin" class="col-sm-6 offset-3 p-2">
           <h6 class="checkempty mb-2" v-if="!CorrectAuthInfo">Sai username hoặc password</h6>
@@ -71,8 +72,6 @@ export default {
         this.isLoading = false;
         this.$router.push(`/admin`);
       }
-
-      this.isLoading = false;
     },
   },
 };

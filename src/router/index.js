@@ -21,12 +21,14 @@ const routes = [
     path: '/admin',
     name: 'admin',
     meta: { requiresAuth: true },
+    beforeEnter: checkRole,
     component: () =>
       import( /* webpackChunkName: "employee" */ '../views/Admin/Admin.vue'),
   },
   {
     path: '/login',
     name: 'login',
+    beforeEnter: checkLogin,
     component: () =>
       import( /* webpackChunkName: "login" */ '../views/Login.vue'),
   }
@@ -49,7 +51,25 @@ router.beforeEach((to, from, next) => {
       next()
     }
   }
-  else next()
+  else {
+    next()
+  }
 })
+
+function checkRole(to, from, next) {
+  const role = localStorage.role
+  if (role == "ADMIN") {
+    next();
+  }
+}
+
+function checkLogin(to, from, next) {
+  if (!localStorage.access_token) {
+    next({ path: '/login' });
+  }
+  else {
+    next();
+  }
+}
 
 export default router
