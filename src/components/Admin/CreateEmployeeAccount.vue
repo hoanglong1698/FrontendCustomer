@@ -13,40 +13,21 @@
             >Tạo tài khoản thất bại, vui lòng kiểm tra lại thông tin đã nhập</b-alert>
           </b-form-group>
 
-          <b-form-group label="Tên đăng nhập:">
-            <b-input-group class="mb-2">
-              <b-input-group-prepend is-text>
-                <b-icon icon="person-fill"></b-icon>
-              </b-input-group-prepend>
-              <b-form-input v-model="form.username" type="text" required placeholder="user123"></b-form-input>
-            </b-input-group>
-          </b-form-group>
-
-          <b-form-group label="Mật khẩu:">
-            <b-input-group class="mb-2">
-              <b-input-group-prepend is-text>
-                <b-icon icon="lock-fill"></b-icon>
-              </b-input-group-prepend>
-              <b-form-input v-model="form.password" required type="password"></b-form-input>
-            </b-input-group>
-          </b-form-group>
-
-          <b-form-group label="Xác nhận mật khẩu:">
-            <b-input-group class="mb-2">
-              <b-input-group-prepend is-text>
-                <b-icon icon="lock-fill"></b-icon>
-              </b-input-group-prepend>
-              <b-form-input required v-model="form.confirmpw" @input="notifyChange" type="password"></b-form-input>
-            </b-input-group>
-            <small v-if="!isMatch">Mật khẩu không khớp</small>
-          </b-form-group>
-
           <b-form-group label="Họ tên">
             <b-input-group class="mb-2">
               <b-input-group-prepend is-text>
                 <b-icon icon="person-lines-fill"></b-icon>
               </b-input-group-prepend>
-              <b-form-input v-model="form.fullname" placeholder="Nguyen Van A" required></b-form-input>
+              <b-form-input v-model="form.name" placeholder="Nguyen Van A" required></b-form-input>
+            </b-input-group>
+          </b-form-group>
+
+          <b-form-group label="Email">
+            <b-input-group class="mb-2">
+              <b-input-group-prepend is-text>
+                <b-icon icon="envelope-fill"></b-icon>
+              </b-input-group-prepend>
+              <b-form-input v-model="form.email" placeholder="nguyenvana@gmail.com" required></b-form-input>
             </b-input-group>
           </b-form-group>
 
@@ -59,20 +40,78 @@
             </b-input-group>
           </b-form-group>
 
-          <b-form-group label="Email:">
-            <b-input-group class="mb-2">
-              <b-input-group-prepend is-text>
-                <b-icon icon="envelope-fill"></b-icon>
-              </b-input-group-prepend>
-              <b-form-input v-model="form.email" placeholder="nguyenvana@gmail.com" required></b-form-input>
-            </b-input-group>
-          </b-form-group>
-
-          <b-form-group label="Ngày sinh:">
-            <b-form-datepicker v-model="form.dob" placeholder="Nhấn để chọn ngày" class="mb-2"></b-form-datepicker>
-          </b-form-group>
           <div class="d-flex justify-content-center">
             <b-button type="submit" variant="primary">Thêm nhân viên</b-button>
+          </div>
+
+          <div class="m-2">
+            <b-button
+              v-if="isSucceed && !isLoading"
+              v-b-modal.modal-prevent-closing
+            >Xem thông tin tài khoản vừa tạo</b-button>
+
+            <b-modal
+              id="modal-prevent-closing"
+              ref="modal"
+              title="Kết quả đăng ký"
+              @show="resetModal"
+              @hidden="resetModal"
+              @ok="handleOk"
+            >
+              <b-row>
+                <b-col sm="3">
+                  <h6 class="mt-0">Trạng thái:</h6>
+                </b-col>
+                <b-col sm="9">
+                  <p>{{ModalCreateEmployeeMessage}}</p>
+                </b-col>
+              </b-row>
+
+              <b-row>
+                <b-col sm="3">
+                  <h6 class="mt-0">Username:</h6>
+                </b-col>
+                <b-col sm="9">
+                  <p>{{ModalCreateEmployeeUsername}}</p>
+                </b-col>
+              </b-row>
+
+              <b-row>
+                <b-col sm="3">
+                  <h6 class="mt-0">Password:</h6>
+                </b-col>
+                <b-col sm="9">
+                  <p>{{ModalCreateEmployeePassword}}</p>
+                </b-col>
+              </b-row>
+
+              <b-row>
+                <b-col sm="3">
+                  <h6 class="mt-0">Họ tên:</h6>
+                </b-col>
+                <b-col sm="9">
+                  <p>{{ModalCreateEmployeeName}}</p>
+                </b-col>
+              </b-row>
+
+              <b-row>
+                <b-col sm="3">
+                  <h6 class="mt-0">Email:</h6>
+                </b-col>
+                <b-col sm="9">
+                  <p>{{ModalCreateEmployeeEmail}}</p>
+                </b-col>
+              </b-row>
+
+              <b-row>
+                <b-col sm="3">
+                  <h6 class="mt-0">Điện thoại:</h6>
+                </b-col>
+                <b-col sm="9">
+                  <p>{{ModalCreateEmployeePhone}}</p>
+                </b-col>
+              </b-row>
+            </b-modal>
           </div>
         </b-form>
       </div>
@@ -81,50 +120,53 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   data() {
     return {
       form: {
-        username: "",
-        password: "",
-        confirmpw: "",
-        fullname: "",
+        name: "",
         phone: "",
         email: "",
-        dob: "",
       },
-      isMatch: true,
       isRegister: false,
+      isLoading: false,
     };
   },
+
+  computed: {
+    ...mapGetters([
+      "isSucceed",
+      "ErrorMessage",
+      "ModalCreateEmployeeMessage",
+      "ModalCreateEmployeeUsername",
+      "ModalCreateEmployeePassword",
+      "ModalCreateEmployeeName",
+      "ModalCreateEmployeeEmail",
+      "ModalCreateEmployeePhone",
+    ]),
+  },
+
   methods: {
     onSubmit(evt) {
       evt.preventDefault();
       const employee = {
-        UserName: this.form.username,
-        UserPassword: this.form.password,
-        FullName: this.form.fullname,
-        Phone: this.form.phone,
-        Email: this.form.email,
-        DoB: this.form.dob,
+        email: this.form.email,
+        name: this.form.name,
+        phone: this.form.phone,
       };
-      //this.$store.dispatch("addEmployee", employee);
-      alert(JSON.stringify(employee));
+
+      this.$store.dispatch("createEmployee", employee);
+      this.isLoading = true;
 
       setTimeout(() => {
         this.isRegister = true;
+        this.isLoading = false;
       }, 3000);
       setTimeout(() => {
         this.isRegister = false;
-      }, 6000);
-    },
-
-    notifyChange() {
-      if (this.form.confirmpw === this.form.password) {
-        this.isMatch = true;
-      } else {
-        this.isMatch = false;
-      }
+      }, 7000);
     },
   },
 };

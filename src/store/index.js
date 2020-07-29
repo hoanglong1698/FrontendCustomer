@@ -19,7 +19,9 @@ export default new Vuex.Store({
     ModalCreateEmployeeMessage: '',
     ModalCreateEmployeeUsername: '',
     ModalCreateEmployeePassword: '',
-
+    ModalCreateEmployeeName: '',
+    ModalCreateEmployeeEmail: '',
+    ModalCreateEmployeePhone: '',
     correctAuthInfo: true,
     accessToken: '',
     role: '',
@@ -65,6 +67,15 @@ export default new Vuex.Store({
     ModalCreateEmployeePassword(state) {
       return state.ModalCreateEmployeePassword;
     },
+    ModalCreateEmployeeName(state) {
+      return state.ModalCreateEmployeeName;
+    },
+    ModalCreateEmployeeEmail(state) {
+      return state.ModalCreateEmployeeEmail;
+    },
+    ModalCreateEmployeePhone(state) {
+      return state.ModalCreateEmployeePhone;
+    },
 
     CorrectAuthInfo(state) {
       return state.correctAuthInfo;
@@ -94,19 +105,15 @@ export default new Vuex.Store({
     MODAL_CREATE_CUSTOMER_MESSAGE(state, payload) {
       state.ModalCreateCustomerMessage = payload;
     },
-
     MODAL_CREATE_CUSTOMER_USERNAME(state, payload) {
       state.ModalCreateCustomerUsername = payload;
     },
-
     MODAL_CREATE_CUSTOMER_PASSWORD(state, payload) {
       state.ModalCreateCustomerPassword = payload;
     },
-
     MODAL_CREATE_CUSTOMER_CARDNUMBER(state, payload) {
       state.ModalCreateCustomerCardNumber = payload;
     },
-
     MODAL_CREATE_CUSTOMER_CARDNAME(state, payload) {
       state.ModalCreateCustomerCardName = payload;
     },
@@ -114,13 +121,20 @@ export default new Vuex.Store({
     MODAL_CREATE_EMPLOYEE_MESSAGE(state, payload) {
       state.ModalCreateEmployeeMessage = payload;
     },
-
     MODAL_CREATE_EMPLOYEE_USERNAME(state, payload) {
       state.ModalCreateEmployeeUsername = payload;
     },
-
     MODAL_CREATE_EMPLOYEE_PASSWORD(state, payload) {
       state.ModalCreateEmployeePassword = payload;
+    },
+    MODAL_CREATE_EMPLOYEE_NAME(state, payload) {
+      state.ModalCreateEmployeeName = payload;
+    },
+    MODAL_CREATE_EMPLOYEE_EMAIL(state, payload) {
+      state.ModalCreateEmployeeEmail = payload;
+    },
+    MODAL_CREATE_EMPLOYEE_PHONE(state, payload) {
+      state.ModalCreateEmployeePhone = payload;
     },
 
     LOGIN(state) {
@@ -227,6 +241,9 @@ export default new Vuex.Store({
           ctx.commit('MODAL_CREATE_EMPLOYEE_MESSAGE', response.data.message);
           ctx.commit('MODAL_CREATE_EMPLOYEE_USERNAME', response.data.data.userName);
           ctx.commit('MODAL_CREATE_EMPLOYEE_PASSWORD', response.data.data.password);
+          ctx.commit('MODAL_CREATE_EMPLOYEE_NAME', employee.name);
+          ctx.commit('MODAL_CREATE_EMPLOYEE_EMAIL', employee.email);
+          ctx.commit('MODAL_CREATE_EMPLOYEE_PHONE', employee.phone);
         })
         .catch(function (error) {
           ctx.commit('IS_SUCCEED', false);
