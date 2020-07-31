@@ -22,7 +22,7 @@ export default new Vuex.Store({
     ModalCreateEmployeeName: '',
     ModalCreateEmployeeEmail: '',
     ModalCreateEmployeePhone: '',
-    correctAuthInfo: true,
+    ValidAuthInfo: true,
     accessToken: '',
     role: '',
     Transactions: [],
@@ -89,8 +89,8 @@ export default new Vuex.Store({
       return state.ModalCreateEmployeePhone;
     },
 
-    CorrectAuthInfo(state) {
-      return state.correctAuthInfo;
+    ValidAuthInfo(state) {
+      return state.ValidAuthInfo;
     },
     Role(state) {
       return state.role;
@@ -168,6 +168,10 @@ export default new Vuex.Store({
       state.accessToken = '';
       state.role = '';
     },
+
+    VALID_AUTH_INFO(state, payload) {
+      state.ValidAuthInfo = payload;
+    }
   },
   actions: {
     async login(ctx, loginInfo) {
@@ -181,6 +185,7 @@ export default new Vuex.Store({
           ctx.commit('LOGIN');
         })
         .catch(function (error) {
+          ctx.commit('VALID_AUTH_INFO', false);
           console.log(error);
         });
     },
@@ -262,7 +267,7 @@ export default new Vuex.Store({
             ]
             setTimeout(() => {
               ctx.commit('TRANSACTIONS', data);
-            }, 2000);
+            }, 1500);
 
           }
         })

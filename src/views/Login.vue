@@ -1,12 +1,9 @@
 <template>
   <div>
     <div class="container">
-      <h1 class="text-center mt-4">Đăng Nhập</h1>
-      <b-spinner v-if="isLoading" label="Loading..."></b-spinner>
+      <h1 class="text-center mt-4">LH Bank - Đăng nhập</h1>
       <div class="row myform">
         <form @submit="onLogin" class="col-sm-6 offset-3 p-2">
-          <h6 class="checkempty mb-2" v-if="!CorrectAuthInfo">Sai username hoặc password</h6>
-
           <b-form-group label="Tên đăng nhập">
             <b-input-group class="mb-2">
               <b-input-group-prepend is-text>
@@ -27,6 +24,8 @@
           <div class="d-flex justify-content-center mt-4">
             <button type="submit" class="btn btn-primary">Đăng nhập</button>
           </div>
+          <b-spinner class="mt-4" v-if="isLoading" label="Loading..."></b-spinner>
+          <div v-if="ValidAuthInfo"></div>
         </form>
       </div>
     </div>
@@ -38,8 +37,12 @@ import { mapGetters } from "vuex";
 export default {
   name: "login",
   components: {},
+  mounted() {
+    var storage = window.localStorage;
+    storage.clear();
+  },
   computed: {
-    ...mapGetters(["CorrectAuthInfo", "Role"]),
+    ...mapGetters(["ValidAuthInfo", "Role"]),
     pageTitle: function () {
       return this.$route.meta.title;
     },
@@ -51,8 +54,6 @@ export default {
         password: "",
       },
       isLoading: false,
-      showerror: false,
-      checkcaptcha: false,
     };
   },
   methods: {
@@ -65,15 +66,26 @@ export default {
       };
       this.$store.dispatch("login", data);
 
-      var role = localStorage.getItem("role");
-      if (role === "EMPLOYER") {
-        this.isLoading = false;
-        this.$router.push(`/employee`);
-      }
+      if (this.ValidAuthInfo === true) {
+        var role = localStorage.getItem("role");
+        if (role === "EMPLOYER") {
+          this.isLoading = false;
+          this.$router.push(`/employee`);
+        }
 
-      if (role === "ADMIN") {
-        this.isLoading = false;
-        this.$router.push(`/admin`);
+        if (role === "ADMIN") {
+          this.isLoading = false;
+          this.$router.push(`/admin`);
+        }
+      } else {
+        setTimeout(() => {
+          this.isLoading = false;
+          this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
+            title: `Đăng nhập thất bại`,
+            variant: "danger",
+            solid: true,
+          });
+        }, 1500);
       }
     },
   },
