@@ -7,20 +7,21 @@ const routes = [
   {
     path: '/',
     name: 'Home',
+    meta: { title: 'LH Bank - Login', },
     component: () =>
       import( /* webpackChunkName: "login" */ '../views/Login.vue'),
   },
   {
     path: '/employee',
     name: 'employee',
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, title: 'LH Bank - Employee', },
     component: () =>
       import( /* webpackChunkName: "employee" */ '../views/Employee/Employee.vue'),
   },
   {
     path: '/admin',
     name: 'admin',
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, title: 'LH Bank - Admin' },
     beforeEnter: checkRole,
     component: () =>
       import( /* webpackChunkName: "employee" */ '../views/Admin/Admin.vue'),
@@ -28,7 +29,6 @@ const routes = [
   {
     path: '/login',
     name: 'login',
-    beforeEnter: checkLogin,
     component: () =>
       import( /* webpackChunkName: "login" */ '../views/Login.vue'),
   }
@@ -56,18 +56,15 @@ router.beforeEach((to, from, next) => {
   }
 })
 
+router.afterEach((to) => {
+  Vue.nextTick(() => {
+      document.title = to.meta.title || "LH Bank";
+  });
+});
+
 function checkRole(to, from, next) {
   const role = localStorage.role
   if (role == "ADMIN") {
-    next();
-  }
-}
-
-function checkLogin(to, from, next) {
-  if (!localStorage.access_token) {
-    next({ path: '/login' });
-  }
-  else {
     next();
   }
 }
