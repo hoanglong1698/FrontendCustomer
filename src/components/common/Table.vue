@@ -5,7 +5,7 @@
       hover
       selectable
       outlined
-      fixed="true"
+      fixed
       :select-mode="selectMode"
       :items="items"
       :fields="fields"
@@ -27,7 +27,7 @@ export default {
   },
   methods: {
     onRowSelected(items) {
-      alert(JSON.stringify(items));
+      console.log(items);
     },
   },
 };
