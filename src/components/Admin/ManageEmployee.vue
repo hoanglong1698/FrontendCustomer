@@ -2,11 +2,8 @@
   <div>
     <div class="form">
       <b-form>
-        <b-form-group>
-          <b-alert v-if="isSucceed && isDeleled" variant="success" show>Xóa tài khoản thành công</b-alert>
-          <b-alert v-if="!isSucceed && isDeleled" variant="danger" show>Xóa tài khoản thất bại</b-alert>
-        </b-form-group>
         <b-button
+          class="mb-4"
           v-if="showDelete"
           style="width: 300px"
           v-b-toggle.collapse-1
@@ -15,7 +12,12 @@
         >Xóa nhân viên</b-button>
         <b-collapse id="collapse-1" class="mt-2" v-model="visibleDelete">
           <b-form-group label="ID nhân viên">
-            <b-form-input v-model="id" type="number" readonly placeholder="ID nhân viên"></b-form-input>
+            <b-form-input
+              v-model="id"
+              type="number"
+              readonly
+              placeholder="Click trên bảng để chọn NV"
+            ></b-form-input>
           </b-form-group>
 
           <b-button
@@ -38,11 +40,6 @@
     </div>
     <div class="form">
       <b-form>
-        <b-form-group>
-          <b-alert v-if="isSucceed && isUpdate" variant="success" show>Cập nhật tài khoản thành công</b-alert>
-          <b-alert v-if="!isSucceed && isUpdate" variant="danger" show>Cập nhật tài khoản thất bại</b-alert>
-        </b-form-group>
-
         <b-button
           @click="onClickUpdate"
           v-if="showUpdate"
@@ -52,7 +49,12 @@
         >Cập nhật thông tin nhân viên</b-button>
         <b-collapse id="collapse-2" class="mt-2" v-model="visibleUpdate">
           <b-form-group label="ID nhân viên">
-            <b-form-input v-model="id" type="number" readonly placeholder="ID nhân viên"></b-form-input>
+            <b-form-input
+              v-model="id"
+              type="number"
+              readonly
+              placeholder="Click trên bảng để chọn NV"
+            ></b-form-input>
           </b-form-group>
 
           <b-form-group label="Họ tên">
@@ -82,11 +84,36 @@
             </b-input-group>
           </b-form-group>
 
+          <b-form-group label="Mật khẩu mới">
+            <b-input-group class="mb-2">
+              <b-input-group-prepend is-text>
+                <b-icon icon="lock-fill"></b-icon>
+              </b-input-group-prepend>
+              <b-form-input v-model="password" required type="password" placeholder="Password"></b-form-input>
+            </b-input-group>
+          </b-form-group>
+
+          <b-form-group label="Xác nhận mật khẩu">
+            <b-input-group class="mb-2">
+              <b-input-group-prepend is-text>
+                <b-icon icon="lock-fill"></b-icon>
+              </b-input-group-prepend>
+              <b-form-input
+                v-model="confirmPassword"
+                required
+                type="password"
+                placeholder="Password"
+                :state="validation"
+              ></b-form-input>
+              <b-form-invalid-feedback :state="validation">Mật khẩu không khớp</b-form-invalid-feedback>
+            </b-input-group>
+            <small v-if="!isMatch">Mật khẩu không khớp</small>
+          </b-form-group>
+
           <b-button style="width: 300px" type="button" variant="success" @click="onUpdate">Cập nhật</b-button>
         </b-collapse>
       </b-form>
     </div>
-    <b-spinner class="mt-3" v-if="isLoading" label="Loading..."></b-spinner>
     <div style="margin-top: 50px">
       <b-button
         v-if="showRefresh"
@@ -95,7 +122,11 @@
         variant="outline-primary"
         @click="onRefresh"
       >Làm mới danh sách nhân viên</b-button>
-      <h5 class="mt-2 mb-2">Danh sách nhân viên ngân hàng</h5>
+    </div>
+
+    <div>
+      <b-spinner class="mt-3" v-if="isLoading" label="Loading..."></b-spinner>
+      <h5 class="mt-3 mb-2">Danh sách nhân viên ngân hàng</h5>
       <b-table
         striped
         hover
@@ -122,8 +153,9 @@ export default {
       name: "",
       email: "",
       phone: "",
-      isUpdate: false,
-      isDeleled: false,
+      password: "",
+      confirmPassword: "",
+      isMatch: true,
       isLoading: false,
       selectMode: "single",
       Fields: [],
@@ -137,6 +169,10 @@ export default {
 
   computed: {
     ...mapGetters(["isSucceed", "ErrorMessage", "ListEmployee"]),
+
+    validation() {
+      return this.confirmPassword === this.password;
+    },
   },
 
   mounted() {
@@ -185,46 +221,98 @@ export default {
     },
 
     onUpdate() {
+      if (this.id == "") {
+        alert("Vui lòng chọn nhân viên");
+        return;
+      }
       this.isLoading = true;
       const info = {
         id: this.id,
         email: this.email,
         name: this.name,
         phone: this.phone,
-        password: "123456",
+        password: this.password,
         action: "UPDATE",
       };
       this.$store.dispatch("updateEmployee", info);
-      
+
       setTimeout(() => {
         this.$store.dispatch("getListEmployee");
-        this.isUpdate = true;
+        if (this.isSucceed === true) {
+          this.$bvToast.toast("Làm mới danh sách nhân viên", {
+            title: `Cập nhật tài khoản thành công`,
+            variant: "success",
+            solid: true,
+          });
+        } else {
+          this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
+            title: `Cập nhật tài khoản thất bại`,
+            variant: "danger",
+            solid: true,
+          });
+        }
+
+        this.id = "";
+        this.name = "";
+        this.email = "";
+        this.phone = "";
+        this.password = "";
+        this.confirmPassword = "";
         this.isLoading = false;
+        this.showRefresh = !this.showRefresh;
+        this.visibleUpdate = !this.visibleUpdate;
+        this.showDelete = !this.showDelete;
       }, 3000);
-      setTimeout(() => {
-        this.isUpdate = false;
-        this.isLoading = false;
-      }, 6000);
     },
 
     onConfirmDelete() {
+      if (this.id == "") {
+        alert("Vui lòng chọn nhân viên");
+        return;
+      }
       this.isLoading = true;
       this.$store.dispatch("deleteEmployee", this.id);
       setTimeout(() => {
         this.$store.dispatch("getListEmployee");
-        this.isDeleled = true;
+        if (this.isSucceed === true) {
+          this.$bvToast.toast("Xem danh sách nhân viên để biết thêm chi tiết", {
+            title: `Xóa tài khoản thành công`,
+            variant: "success",
+            solid: true,
+          });
+        } else {
+          this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
+            title: `Xóa tài khoản thất bại`,
+            variant: "danger",
+            solid: true,
+          });
+        }
+
         this.isLoading = false;
+        this.id = "";
+        this.showRefresh = !this.showRefresh;
+        this.visibleDelete = !this.visibleDelete;
+        this.showUpdate = !this.showUpdate;
       }, 3000);
-      setTimeout(() => {
-        this.isDeleled = false;
-        this.isLoading = false;
-      }, 6000);
     },
 
     onRefresh() {
       this.isLoading = true;
       this.$store.dispatch("getListEmployee");
       setTimeout(() => {
+        if (this.isSucceed === true) {
+          this.$bvToast.toast("Xem danh sách nhân viên để biết thêm chi tiết", {
+            title: `Làm mới danh sách nhân viên thành công`,
+            variant: "success",
+            solid: true,
+          });
+        } else {
+          this.$bvToast.toast("Vui lòng thử lại sau", {
+            title: `Làm mới danh sách nhân viên thất bại`,
+            variant: "danger",
+            solid: true,
+          });
+        }
         this.isLoading = false;
       }, 2000);
     },

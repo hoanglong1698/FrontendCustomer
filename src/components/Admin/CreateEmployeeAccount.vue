@@ -3,16 +3,6 @@
     <b-container>
       <div class="form">
         <b-form @submit="onSubmit">
-          <b-form-group>
-            <b-spinner v-if="isLoading" label="Loading..."></b-spinner>
-            <b-alert v-if="isSucceed && isRegister" variant="success" show>Tạo tài khoản thành công</b-alert>
-            <b-alert
-              v-if="!isSucceed && isRegister"
-              variant="danger"
-              show
-            >Tạo tài khoản thất bại, vui lòng kiểm tra lại thông tin đã nhập</b-alert>
-          </b-form-group>
-
           <b-form-group label="Họ tên">
             <b-input-group class="mb-2">
               <b-input-group-prepend is-text>
@@ -44,17 +34,15 @@
             <b-button type="submit" variant="primary">Thêm nhân viên</b-button>
           </div>
 
+          <b-spinner class="mt-4" v-if="isLoading" label="Loading..."></b-spinner>
+
           <div class="m-2">
             <b-button
               v-if="isSucceed && showResult"
               v-b-modal.modal-prevent-closing
             >Xem thông tin tài khoản vừa tạo</b-button>
 
-            <b-modal
-              id="modal-prevent-closing"
-              ref="modal"
-              title="Kết quả đăng ký"
-            >
+            <b-modal id="modal-prevent-closing" ref="modal" title="Kết quả đăng ký">
               <b-row>
                 <b-col sm="3">
                   <h6 class="mt-0">Trạng thái:</h6>
@@ -127,7 +115,6 @@ export default {
         phone: "",
         email: "",
       },
-      isRegister: false,
       isLoading: false,
       showResult: false,
     };
@@ -149,6 +136,7 @@ export default {
   methods: {
     onSubmit(evt) {
       this.showResult = false;
+      this.isLoading = true;
       evt.preventDefault();
       const employee = {
         email: this.form.email,
@@ -157,15 +145,28 @@ export default {
       };
 
       this.$store.dispatch("createEmployee", employee);
-      this.isLoading = true;
+      
       setTimeout(() => {
-        this.isRegister = true;
+        if (this.isSucceed === true) {
+          this.$bvToast.toast(
+            "Click Xem thông tin vừa tạo để biết thêm chi tiết",
+            {
+              title: `Tạo tài khoản thành công`,
+              variant: "success",
+              solid: true,
+            }
+          );
+        } else {
+          this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
+            title: `Tạo tài khoản thất bại`,
+            variant: "danger",
+            solid: true,
+          });
+        }
+
         this.isLoading = false;
         this.showResult = true;
       }, 3000);
-      setTimeout(() => {
-        this.isRegister = false;
-      }, 7000);
     },
   },
 };
