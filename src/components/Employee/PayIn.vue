@@ -3,17 +3,6 @@
     <b-container>
       <div class="form">
         <b-form @submit="onSubmit">
-          <b-form-group>
-            <b-spinner v-if="isLoading" label="Loading..."></b-spinner>
-            <b-alert v-if="isSucceed && isAdd" variant="success" show>Nạp tiền thành công</b-alert>
-            <b-alert v-if="isSucceed && isAdd" variant="success" show>Số dư: {{TotalBalance}}</b-alert>
-            <b-alert
-              v-if="!isSucceed && isAdd"
-              variant="danger"
-              show
-            >Nạp tiền thất bại, vui lòng kiểm tra số thẻ và số tiền cần nạp</b-alert>
-          </b-form-group>
-
           <b-form-group label="Số tài khoản:">
             <b-input-group class="mb-2">
               <b-input-group-prepend is-text>
@@ -35,6 +24,8 @@
           <div class="d-flex justify-content-center">
             <b-button type="submit" variant="primary">Nạp tiền</b-button>
           </div>
+
+          <b-spinner class="mt-4" v-if="isLoading" label="Loading..."></b-spinner>
         </b-form>
       </div>
     </b-container>
@@ -49,7 +40,6 @@ export default {
     return {
       accNumber: "",
       amount: "",
-      isAdd: false,
       isLoading: false,
     };
   },
@@ -61,22 +51,34 @@ export default {
   methods: {
     onSubmit(evt) {
       evt.preventDefault();
+      this.isLoading = true;
       const data = {
         cardNumber: this.accNumber,
         balance: this.amount,
       };
 
       this.$store.dispatch("payIn", data);
-      this.isLoading = true;
-
       setTimeout(() => {
-        this.isAdd = true;
+        if (this.isSucceed === true) {
+          const textBalance = "Số dư: " + this.TotalBalance;
+          this.$bvToast.toast(
+            textBalance,
+            {
+              title: `Nạp tiền thành công`,
+              variant: "success",
+              solid: true,
+            }
+          );
+        } else {
+          this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
+            title: `Nạp tiền thất bại`,
+            variant: "danger",
+            solid: true,
+          });
+        }
+
         this.isLoading = false;
-      }, 3000);
-
-      setTimeout(() => {
-        this.isAdd = false;
-      }, 8000);
+      }, 2000);
     },
   },
 };

@@ -3,12 +3,6 @@
     <b-container>
       <div class="form">
         <b-form @submit="onSubmit">
-          <b-form-group>
-            <b-spinner v-if="isLoading" label="Loading..."></b-spinner>
-            <b-alert v-if="isSucceed && isClicked" variant="success" show>Lấy dữ liệu thành công</b-alert>
-            <b-alert v-if="!isSucceed && isClicked" variant="danger" show>Lấy dữ liệu thất bại</b-alert>
-          </b-form-group>
-
           <b-form-group label="Số tài khoản:">
             <b-input-group class="mb-2">
               <b-input-group-prepend is-text>
@@ -28,6 +22,7 @@
         </b-form>
       </div>
     </b-container>
+    <b-spinner class="mt-4" v-if="isLoading" label="Loading..."></b-spinner>
     <h4>{{type}}</h4>
     <Table :items="Transactions" :fields="Fields"></Table>
     <br />
@@ -43,8 +38,8 @@ export default {
     return {
       accountNumber: "",
       isLoading: false,
-      isClicked: false,
       Fields: [],
+      type: "Nhận tiền",
       types: ["Nhận tiền", "Chuyển tiền", "Nhắc nợ"],
     };
   },
@@ -96,13 +91,21 @@ export default {
       this.$store.dispatch("getTransactions", data);
 
       setTimeout(() => {
-        this.isClicked = true;
+        if (this.isSucceed === true) {
+          this.$bvToast.toast("Xem chi tiết tại bảng lịch sử giao dịch", {
+            title: `Lấy dữ liệu thành công`,
+            variant: "success",
+            solid: true,
+          });
+        } else {
+          this.$bvToast.toast("Vui lòng thử lại sau", {
+            title: `Lấy dữ liệu thất bại`,
+            variant: "danger",
+            solid: true,
+          });
+        }
         this.isLoading = false;
-      }, 2000);
-      setTimeout(() => {
-        this.isClicked = false;
-        this.isAdd = false;
-      }, 5000);
+      }, 1500);
     },
   },
 };

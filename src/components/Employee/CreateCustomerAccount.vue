@@ -43,7 +43,7 @@
             <b-button type="submit" variant="primary">Tạo tài khoản</b-button>
           </div>
 
-          <b-spinner v-if="isLoading" label="Loading..."></b-spinner>
+          <b-spinner class="mt-4" v-if="isLoading" label="Loading..."></b-spinner>
 
           <div class="m-2">
             <b-button
@@ -163,7 +163,7 @@ export default {
             solid: true,
           });
         }
-        
+
         this.isLoading = false;
         this.showResult = true;
       }, 3000);
