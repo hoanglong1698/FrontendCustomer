@@ -40,6 +40,9 @@ export default {
   components: {},
   computed: {
     ...mapGetters(["CorrectAuthInfo", "Role"]),
+    pageTitle: function () {
+      return this.$route.meta.title;
+    },
   },
   data() {
     return {

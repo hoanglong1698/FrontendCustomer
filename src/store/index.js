@@ -26,7 +26,9 @@ export default new Vuex.Store({
     accessToken: '',
     role: '',
     Transactions: [],
+    PartnerTransactions: [],
     ListEmployee: [],
+    TotalAmount: 'N/A',
   },
 
   getters: {
@@ -38,6 +40,12 @@ export default new Vuex.Store({
     },
     Transactions(state) {
       return state.Transactions;
+    },
+    PartnerTransactions(state) {
+      return state.PartnerTransactions;
+    },
+    TotalAmount(state) {
+      return state.TotalAmount;
     },
     ListEmployee(state) {
       return state.ListEmployee;
@@ -106,10 +114,16 @@ export default new Vuex.Store({
       state.Transactions = payload;
     },
 
+    PARTNERTRANSACTIONS(state, payload) {
+      state.PartnerTransactions = payload;
+    },
+
     LISTEMPLOYEE(state, payload) {
       state.ListEmployee = payload;
     },
-
+    TOTALAMOUNT(state, payload) {
+      state.TotalAmount = payload;
+    },
     MODAL_CREATE_CUSTOMER_MESSAGE(state, payload) {
       state.ModalCreateCustomerMessage = payload;
     },
@@ -149,6 +163,11 @@ export default new Vuex.Store({
       state.accessToken = localStorage.getItem('access_token');
       state.role = localStorage.getItem('role');
     },
+
+    LOGOUT(state) {
+      state.accessToken = '';
+      state.role = '';
+    },
   },
   actions: {
     async login(ctx, loginInfo) {
@@ -166,6 +185,11 @@ export default new Vuex.Store({
         });
     },
 
+    logout(ctx) {
+      var storage = window.localStorage;
+      storage.clear();
+      ctx.commit('LOGOUT');
+    },
     //nạp tiền vào tài khoản
     async payIn(ctx, data) {
       await axios.post('https://i-banking.herokuapp.com/lh-bank/deposit', data, {
@@ -239,7 +263,7 @@ export default new Vuex.Store({
             setTimeout(() => {
               ctx.commit('TRANSACTIONS', data);
             }, 2000);
-            
+
           }
         })
         .catch(function (error) {
@@ -326,6 +350,64 @@ export default new Vuex.Store({
           console.log(error);
         });
     },
+
+    async getPartnerTransaction(ctx, info) {
+      var url = '';
+
+      if (info.id == "0") {
+        url = 'https://i-banking.herokuapp.com/lh-bank/get-transaction-merchant/' + info.from + ' 00:00:00' + '/' + info.to + ' 23:59:59.999'
+      }
+      else {
+        url = 'https://i-banking.herokuapp.com/lh-bank/get-transaction-merchant/' + info.from + ' 00:00:00' + '/' + info.to + ' 23:59:59.999' + '/' + info.id
+      }
+
+      await axios.get(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('access_token'),
+        }
+      })
+        .then(function (response) {
+          if (response.data.data.transactions != null) {
+            const resTotalAmount = response.data.data.transactions.map(item => item.totalAMount)
+            if (resTotalAmount.length == 1) {
+              ctx.commit('TOTALAMOUNT', resTotalAmount);
+            }
+            else {
+              ctx.commit('TOTALAMOUNT', "N/A");
+            }
+            const data = response.data.data.transactions.flatMap(item => item.transactionMerchants)
+            const result = data.map(item => {
+              if (item.merchantId == 1) {
+                item.merchantName = "pgpbank";
+              }
+              if (item.merchantId == 3) {
+                item.merchantName = "HHL Bank";
+              }
+              return item;
+            })
+            ctx.commit('IS_SUCCEED', true);
+            ctx.commit('PARTNERTRANSACTIONS', result);
+          }
+          else {
+            const data = [
+              {
+                "content": "Chưa có giao dịch nào!",
+              }
+            ]
+            setTimeout(() => {
+              ctx.commit('PARTNERTRANSACTIONS', data);
+            }, 1500);
+
+          }
+        })
+        .catch(function (error) {
+          ctx.commit('IS_SUCCEED', false);
+          console.log(error);
+        });
+    },
+
+
   },
   modules: {
   }
