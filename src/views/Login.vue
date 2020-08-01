@@ -25,7 +25,6 @@
             <button type="submit" class="btn btn-primary">Đăng nhập</button>
           </div>
           <b-spinner class="mt-4" v-if="isLoading" label="Loading..."></b-spinner>
-          <div v-if="ValidAuthInfo"></div>
         </form>
       </div>
     </div>
@@ -42,7 +41,7 @@ export default {
     storage.clear();
   },
   computed: {
-    ...mapGetters(["ValidAuthInfo", "Role"]),
+    ...mapGetters(["Role"]),
     pageTitle: function () {
       return this.$route.meta.title;
     },
@@ -66,27 +65,27 @@ export default {
       };
       this.$store.dispatch("login", data);
 
-      if (this.ValidAuthInfo === true) {
-        var role = localStorage.getItem("role");
-        if (role === "EMPLOYER") {
-          this.isLoading = false;
-          this.$router.push(`/employee`);
-        }
+      setTimeout(() => {
+        if (localStorage.getItem("isAuthenticated") == "true") {
+          var role = localStorage.getItem("role");
+          if (role === "EMPLOYER") {
+            this.isLoading = false;
+            this.$router.push(`/employee`);
+          }
 
-        if (role === "ADMIN") {
-          this.isLoading = false;
-          this.$router.push(`/admin`);
-        }
-      } else {
-        setTimeout(() => {
+          if (role === "ADMIN") {
+            this.isLoading = false;
+            this.$router.push(`/admin`);
+          }
+        } else {
           this.isLoading = false;
           this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
             title: `Đăng nhập thất bại`,
             variant: "danger",
             solid: true,
           });
-        }, 1500);
-      }
+        }
+      }, 1500);
     },
   },
 };

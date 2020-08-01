@@ -6,7 +6,6 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    ErrorMessage: '',
     isSucceed: false,
     TotalBalance: '',
 
@@ -22,7 +21,6 @@ export default new Vuex.Store({
     ModalCreateEmployeeName: '',
     ModalCreateEmployeeEmail: '',
     ModalCreateEmployeePhone: '',
-    ValidAuthInfo: true,
     accessToken: '',
     role: '',
     Transactions: [],
@@ -32,9 +30,6 @@ export default new Vuex.Store({
   },
 
   getters: {
-    ErrorMessage(state) {
-      return state.ErrorMessage;
-    },
     TotalBalance(state) {
       return state.TotalBalance;
     },
@@ -88,22 +83,11 @@ export default new Vuex.Store({
     ModalCreateEmployeePhone(state) {
       return state.ModalCreateEmployeePhone;
     },
-
-    ValidAuthInfo(state) {
-      return state.ValidAuthInfo;
-    },
-    Role(state) {
-      return state.role;
-    },
   },
 
   mutations: {
     IS_SUCCEED(state, payload) {
       state.isSucceed = payload;
-    },
-
-    ERROR_MESSAGE(state, payload) {
-      state.ErrorMessage = payload;
     },
 
     TOTAL_BALANCE(state, payload) {
@@ -158,20 +142,6 @@ export default new Vuex.Store({
     MODAL_CREATE_EMPLOYEE_PHONE(state, payload) {
       state.ModalCreateEmployeePhone = payload;
     },
-
-    LOGIN(state) {
-      state.accessToken = localStorage.getItem('access_token');
-      state.role = localStorage.getItem('role');
-    },
-
-    LOGOUT(state) {
-      state.accessToken = '';
-      state.role = '';
-    },
-
-    VALID_AUTH_INFO(state, payload) {
-      state.ValidAuthInfo = payload;
-    }
   },
   actions: {
     async login(ctx, loginInfo) {
@@ -182,18 +152,17 @@ export default new Vuex.Store({
         .then(function (response) {
           localStorage.setItem('access_token', response.data.bearerToken);
           localStorage.setItem('role', response.data.role);
-          ctx.commit('LOGIN');
+          localStorage.setItem('isAuthenticated', true);
         })
         .catch(function (error) {
-          ctx.commit('VALID_AUTH_INFO', false);
+          localStorage.setItem('isAuthenticated', false);
           console.log(error);
         });
     },
 
-    logout(ctx) {
+    logout() {
       var storage = window.localStorage;
       storage.clear();
-      ctx.commit('LOGOUT');
     },
     //nạp tiền vào tài khoản
     async payIn(ctx, data) {
@@ -262,7 +231,7 @@ export default new Vuex.Store({
           else {
             const data = [
               {
-                "cardNumber": "Chưa có giao dịch nào!",
+                "cardNumber": "Chưa có giao dịch nào !",
               }
             ]
             setTimeout(() => {
@@ -397,7 +366,7 @@ export default new Vuex.Store({
           else {
             const data = [
               {
-                "content": "Chưa có giao dịch nào!",
+                "content": "Chưa có giao dịch nào !",
               }
             ]
             setTimeout(() => {

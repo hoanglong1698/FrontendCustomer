@@ -22,7 +22,7 @@ const routes = [
     path: '/admin',
     name: 'admin',
     meta: { requiresAuth: true, title: 'LH Bank - Admin' },
-    beforeEnter: checkRole,
+    beforeEnter: checkAdmin,
     component: () =>
       import( /* webpackChunkName: "employee" */ '../views/Admin/Admin.vue'),
   },
@@ -39,21 +39,14 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (!localStorage.access_token) {
-      next({
-        path: '/login',
-        query: { retUrl: to.fullPath }
-      })
-    }
-
-    else {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (localStorage.getItem('access_token')) {
       next()
+      return
     }
+    next('/login')
   }
-  else {
-    next()
-  }
+  next()
 })
 
 router.afterEach((to) => {
@@ -62,11 +55,12 @@ router.afterEach((to) => {
   });
 });
 
-function checkRole(to, from, next) {
+function checkAdmin(to, from, next) {
   const role = localStorage.role
   if (role == "ADMIN") {
     next();
   }
+  next('/login');
 }
 
 export default router
