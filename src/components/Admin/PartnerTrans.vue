@@ -114,7 +114,7 @@ export default {
           to: this.to,
           id: this.partner,
         });
-        if (this.isSucceed === true) {
+        if (this.$store.state.isSucceed === true) {
           this.$bvToast.toast("Xem chi tiết tại bảng lịch sử giao dịch", {
             title: `Lấy dữ liệu thành công`,
             variant: "success",

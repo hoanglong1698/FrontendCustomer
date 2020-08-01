@@ -23,8 +23,10 @@
       </div>
     </b-container>
     <b-spinner class="mt-4" v-if="isLoading" label="Loading..."></b-spinner>
-    <h4>{{type}}</h4>
-    <Table :items="Transactions" :fields="Fields"></Table>
+    <div v-if="showResult">
+      <h4>{{type}}</h4>
+      <Table :items="Transactions" :fields="Fields"></Table>
+    </div>
     <br />
   </div>
 </template>
@@ -41,6 +43,7 @@ export default {
       Fields: [],
       type: "Nhận tiền",
       types: ["Nhận tiền", "Chuyển tiền", "Nhắc nợ"],
+      showResult: false,
     };
   },
 
@@ -97,12 +100,14 @@ export default {
             variant: "success",
             solid: true,
           });
+          this.showResult = true;
         } else {
           this.$bvToast.toast("Vui lòng thử lại sau", {
             title: `Lấy dữ liệu thất bại`,
             variant: "danger",
             solid: true,
           });
+          this.showResult = false;
         }
         this.isLoading = false;
       }, 1500);
