@@ -26,14 +26,22 @@
 import CreateEmployeeAccount from "../../components/Admin/CreateEmployeeAccount.vue";
 import ManageEmployee from "../../components/Admin/ManageEmployee.vue";
 import PartnerTrans from "../../components/Admin/PartnerTrans.vue";
-import Header from '@/components/common/Header.vue'
+import Header from "@/components/common/Header.vue";
 export default {
   name: "Admin",
   components: {
     Header,
     CreateEmployeeAccount,
     ManageEmployee,
-    PartnerTrans
-  }
+    PartnerTrans,
+  },
+
+  mounted() {
+    this.$bvToast.toast("Xin chào Admin", {
+      title: `Đăng nhập thành công`,
+      variant: "success",
+      solid: true,
+    });
+  },
 };
 </script>

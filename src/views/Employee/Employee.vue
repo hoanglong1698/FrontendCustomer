@@ -25,7 +25,7 @@
 import CreateCustomerAccount from "../../components/Employee/CreateCustomerAccount.vue";
 import PayIn from "../../components/Employee/PayIn.vue";
 import TransHistory from "../../components/Employee/TransHistory.vue";
-import Header from '@/components/common/Header.vue'
+import Header from "@/components/common/Header.vue";
 export default {
   name: "Employee",
   components: {
@@ -33,6 +33,14 @@ export default {
     CreateCustomerAccount,
     PayIn,
     TransHistory,
+  },
+
+  mounted() {
+    this.$bvToast.toast("Xin chào Employee", {
+      title: `Đăng nhập thành công`,
+      variant: "success",
+      solid: true,
+    });
   },
 };
 </script>
