@@ -56,36 +56,33 @@ export default {
     };
   },
   methods: {
-    onLogin(event) {
+    async onLogin(event) {
       event.preventDefault();
       this.isLoading = true;
       const data = {
         userName: this.form.username,
         password: this.form.password,
       };
-      this.$store.dispatch("login", data);
-
-      setTimeout(() => {
-        if (localStorage.getItem("isAuthenticated") == "true") {
-          var role = localStorage.getItem("role");
-          if (role === "EMPLOYER") {
-            this.isLoading = false;
-            this.$router.push(`/employee`);
-          }
-
-          if (role === "ADMIN") {
-            this.isLoading = false;
-            this.$router.push(`/admin`);
-          }
-        } else {
+      await this.$store.dispatch("login", data);
+      if (localStorage.getItem("isAuthenticated") == "true") {
+        var role = localStorage.getItem("role");
+        if (role === "EMPLOYER") {
           this.isLoading = false;
-          this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
-            title: `Đăng nhập thất bại`,
-            variant: "danger",
-            solid: true,
-          });
+          this.$router.push(`/employee`);
         }
-      }, 1500);
+
+        if (role === "ADMIN") {
+          this.isLoading = false;
+          this.$router.push(`/admin`);
+        }
+      } else {
+        this.isLoading = false;
+        this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
+          title: `Đăng nhập thất bại`,
+          variant: "danger",
+          solid: true,
+        });
+      }
     },
   },
 };

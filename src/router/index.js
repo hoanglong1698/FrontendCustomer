@@ -41,7 +41,7 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (localStorage.getItem('access_token')) {
-      next()
+      next();
       return
     }
     next('/login')
@@ -56,11 +56,9 @@ router.afterEach((to) => {
 });
 
 function checkAdmin(to, from, next) {
-  const role = localStorage.role
-  if (role == "ADMIN") {
+  if (localStorage.getItem('role') === "ADMIN") {
     next();
   }
-  next('/login');
 }
 
 export default router

@@ -161,6 +161,9 @@ export default new Vuex.Store({
     },
 
     logout() {
+      localStorage.setItem('access_token', '');
+      localStorage.setItem('role', '');
+      localStorage.setItem('isAuthenticated', false);
       var storage = window.localStorage;
       storage.clear();
     },
