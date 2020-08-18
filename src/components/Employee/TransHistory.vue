@@ -8,7 +8,13 @@
               <b-input-group-prepend is-text>
                 <b-icon icon="credit-card"></b-icon>
               </b-input-group-prepend>
-              <b-form-input v-model="accountNumber" type="number" required></b-form-input>
+              <b-form-input
+                v-model="accountNumber"
+                :state="validationNumber"
+                type="number"
+                required
+              ></b-form-input>
+              <b-form-invalid-feedback>Số tài khoản có 16 ký tự</b-form-invalid-feedback>
             </b-input-group>
           </b-form-group>
 
@@ -48,14 +54,21 @@ export default {
   },
 
   computed: {
-    ...mapGetters(["isSucceed", "ErrorMessage", "Transactions"]),
+    ...mapGetters(["isSucceed", "Transactions"]),
+    validationNumber() {
+      return this.accountNumber == ""
+        ? null
+        : this.accountNumber.length == 16
+        ? true
+        : false;
+    },
   },
 
   components: {
     Table,
   },
   methods: {
-    onSubmit(evt) {
+    async onSubmit(evt) {
       evt.preventDefault();
       this.isLoading = true;
       this.Fields = [
@@ -91,26 +104,24 @@ export default {
         type: this.type,
       };
 
-      this.$store.dispatch("getTransactions", data);
+      await this.$store.dispatch("getTransactions", data);
+      this.isLoading = false;
 
-      setTimeout(() => {
-        if (this.isSucceed === true) {
-          this.$bvToast.toast("Xem chi tiết tại bảng lịch sử giao dịch", {
-            title: `Lấy dữ liệu thành công`,
-            variant: "success",
-            solid: true,
-          });
-          this.showResult = true;
-        } else {
-          this.$bvToast.toast("Vui lòng thử lại sau", {
-            title: `Lấy dữ liệu thất bại`,
-            variant: "danger",
-            solid: true,
-          });
-          this.showResult = false;
-        }
-        this.isLoading = false;
-      }, 1500);
+      if (this.isSucceed === true) {
+        this.$bvToast.toast("Xem chi tiết tại bảng lịch sử giao dịch", {
+          title: `Lấy dữ liệu thành công`,
+          variant: "success",
+          solid: true,
+        });
+        this.showResult = true;
+      } else {
+        this.$bvToast.toast("Vui lòng thử lại sau", {
+          title: `Lấy dữ liệu thất bại`,
+          variant: "danger",
+          solid: true,
+        });
+        this.showResult = false;
+      }
     },
   },
 };

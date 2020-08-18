@@ -89,16 +89,11 @@ export default {
   },
 
   computed: {
-    ...mapGetters([
-      "isSucceed",
-      "ErrorMessage",
-      "PartnerTransactions",
-      "TotalAmount",
-    ]),
+    ...mapGetters(["isSucceed", "PartnerTransactions", "TotalAmount"]),
   },
 
   methods: {
-    loadPartnerTransaction() {
+    async loadPartnerTransaction() {
       if (this.from >= this.to) {
         alert("Sai ngày bắt đầu. Vui lòng chọn lại");
         return;
@@ -107,27 +102,26 @@ export default {
       this.isLoading = true;
       this.isClicked = true;
 
-      setTimeout(() => {
-        this.isLoading = false;
-        this.$store.dispatch("getPartnerTransaction", {
-          from: this.from,
-          to: this.to,
-          id: this.partner,
+      await this.$store.dispatch("getPartnerTransaction", {
+        from: this.from,
+        to: this.to,
+        id: this.partner,
+      });
+      this.isLoading = false;
+
+      if (this.isSucceed === true) {
+        this.$bvToast.toast("Xem chi tiết tại bảng lịch sử giao dịch", {
+          title: `Lấy dữ liệu thành công`,
+          variant: "success",
+          solid: true,
         });
-        if (this.$store.state.isSucceed === true) {
-          this.$bvToast.toast("Xem chi tiết tại bảng lịch sử giao dịch", {
-            title: `Lấy dữ liệu thành công`,
-            variant: "success",
-            solid: true,
-          });
-        } else {
-          this.$bvToast.toast("Vui lòng thử lại sau", {
-            title: `Lấy dữ liệu thất bại`,
-            variant: "danger",
-            solid: true,
-          });
-        }
-      }, 1500);
+      } else {
+        this.$bvToast.toast("Hệ thống gặp lỗi khi lấy dữ liệu, vui lòng thử lại sau", {
+          title: `Lấy dữ liệu thất bại`,
+          variant: "danger",
+          solid: true,
+        });
+      }
     },
   },
 };

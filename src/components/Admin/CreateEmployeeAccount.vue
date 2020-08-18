@@ -8,7 +8,13 @@
               <b-input-group-prepend is-text>
                 <b-icon icon="person-lines-fill"></b-icon>
               </b-input-group-prepend>
-              <b-form-input v-model="form.name" placeholder="Nguyen Van A" required></b-form-input>
+              <b-form-input
+                v-model="form.name"
+                :state="validationName"
+                placeholder="Nguyen Van A"
+                required
+              ></b-form-input>
+              <b-form-invalid-feedback>Họ tên ít nhất 2 ký tự</b-form-invalid-feedback>
             </b-input-group>
           </b-form-group>
 
@@ -17,7 +23,13 @@
               <b-input-group-prepend is-text>
                 <b-icon icon="envelope-fill"></b-icon>
               </b-input-group-prepend>
-              <b-form-input v-model="form.email" placeholder="nguyenvana@gmail.com" required></b-form-input>
+              <b-form-input
+                v-model="form.email"
+                :state="validationEmail"
+                placeholder="nguyenvana@gmail.com"
+                required
+              ></b-form-input>
+              <b-form-invalid-feedback>Email không đúng định dạng</b-form-invalid-feedback>
             </b-input-group>
           </b-form-group>
 
@@ -26,7 +38,14 @@
               <b-input-group-prepend is-text>
                 <b-icon icon="phone"></b-icon>
               </b-input-group-prepend>
-              <b-form-input v-model="form.phone" type="number" placeholder="0123456789" required></b-form-input>
+              <b-form-input
+                v-model="form.phone"
+                :state="validationPhone"
+                type="number"
+                placeholder="0123456789"
+                required
+              ></b-form-input>
+              <b-form-invalid-feedback>Số điện thoại không đúng</b-form-invalid-feedback>
             </b-input-group>
           </b-form-group>
 
@@ -45,19 +64,10 @@
             <b-modal id="modal-prevent-closing" ref="modal" title="Kết quả đăng ký">
               <b-row>
                 <b-col sm="3">
-                  <h6 class="mt-0">Trạng thái:</h6>
-                </b-col>
-                <b-col sm="9">
-                  <p>{{ModalCreateEmployeeMessage}}</p>
-                </b-col>
-              </b-row>
-
-              <b-row>
-                <b-col sm="3">
                   <h6 class="mt-0">Username:</h6>
                 </b-col>
                 <b-col sm="9">
-                  <p>{{ModalCreateEmployeeUsername}}</p>
+                  <p>{{ModalCreateEmployee.userName}}</p>
                 </b-col>
               </b-row>
 
@@ -66,7 +76,7 @@
                   <h6 class="mt-0">Password:</h6>
                 </b-col>
                 <b-col sm="9">
-                  <p>{{ModalCreateEmployeePassword}}</p>
+                  <p>{{ModalCreateEmployee.password}}</p>
                 </b-col>
               </b-row>
 
@@ -75,7 +85,7 @@
                   <h6 class="mt-0">Họ tên:</h6>
                 </b-col>
                 <b-col sm="9">
-                  <p>{{ModalCreateEmployeeName}}</p>
+                  <p>{{form.name}}</p>
                 </b-col>
               </b-row>
 
@@ -84,7 +94,7 @@
                   <h6 class="mt-0">Email:</h6>
                 </b-col>
                 <b-col sm="9">
-                  <p>{{ModalCreateEmployeeEmail}}</p>
+                  <p>{{this.form.email}}</p>
                 </b-col>
               </b-row>
 
@@ -93,7 +103,7 @@
                   <h6 class="mt-0">Điện thoại:</h6>
                 </b-col>
                 <b-col sm="9">
-                  <p>{{ModalCreateEmployeePhone}}</p>
+                  <p>{{this.form.phone}}</p>
                 </b-col>
               </b-row>
             </b-modal>
@@ -121,20 +131,35 @@ export default {
   },
 
   computed: {
-    ...mapGetters([
-      "isSucceed",
-      "ErrorMessage",
-      "ModalCreateEmployeeMessage",
-      "ModalCreateEmployeeUsername",
-      "ModalCreateEmployeePassword",
-      "ModalCreateEmployeeName",
-      "ModalCreateEmployeeEmail",
-      "ModalCreateEmployeePhone",
-    ]),
+    ...mapGetters(["isSucceed", "ModalCreateEmployee"]),
+
+    validationName() {
+      return this.form.name == ""
+        ? null
+        : this.form.name.length > 2
+        ? true
+        : false;
+    },
+
+    validationPhone() {
+      return this.form.phone == ""
+        ? null
+        : this.form.phone.length >= 10 && this.form.phone.length <= 11
+        ? true
+        : false;
+    },
+
+    validationEmail: function () {
+      if (this.form.email == "") return null;
+      else {
+        var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(this.form.email);
+      }
+    },
   },
 
   methods: {
-    onSubmit(evt) {
+    async onSubmit(evt) {
       this.showResult = false;
       this.isLoading = true;
       evt.preventDefault();
@@ -144,29 +169,27 @@ export default {
         phone: this.form.phone,
       };
 
-      this.$store.dispatch("createEmployee", employee);
-      
-      setTimeout(() => {
-        if (this.isSucceed === true) {
-          this.$bvToast.toast(
-            "Click Xem thông tin vừa tạo để biết thêm chi tiết",
-            {
-              title: `Tạo tài khoản thành công`,
-              variant: "success",
-              solid: true,
-            }
-          );
-        } else {
-          this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
-            title: `Tạo tài khoản thất bại`,
-            variant: "danger",
-            solid: true,
-          });
-        }
+      await this.$store.dispatch("createEmployee", employee);
 
-        this.isLoading = false;
+      this.isLoading = false;
+      if (this.isSucceed === true) {
+        this.$bvToast.toast(
+          "Click Xem thông tin vừa tạo để biết thêm chi tiết",
+          {
+            title: `Tạo tài khoản thành công`,
+            variant: "success",
+            solid: true,
+          }
+        );
+
         this.showResult = true;
-      }, 3000);
+      } else {
+        this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
+          title: `Tạo tài khoản thất bại`,
+          variant: "danger",
+          solid: true,
+        });
+      }
     },
   },
 };

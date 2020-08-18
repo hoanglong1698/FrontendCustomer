@@ -8,7 +8,13 @@
               <b-input-group-prepend is-text>
                 <b-icon icon="person-lines-fill"></b-icon>
               </b-input-group-prepend>
-              <b-form-input v-model="form.name" placeholder="Nguyen Van A" required></b-form-input>
+              <b-form-input
+                v-model="form.name"
+                :state="validationName"
+                placeholder="Nguyen Van A"
+                required
+              ></b-form-input>
+              <b-form-invalid-feedback>Họ tên ít nhất 2 ký tự</b-form-invalid-feedback>
             </b-input-group>
           </b-form-group>
 
@@ -17,7 +23,13 @@
               <b-input-group-prepend is-text>
                 <b-icon icon="envelope-fill"></b-icon>
               </b-input-group-prepend>
-              <b-form-input v-model="form.email" placeholder="nguyenvana@gmail.com" required></b-form-input>
+              <b-form-input
+                v-model="form.email"
+                :state="validationEmail"
+                placeholder="nguyenvana@gmail.com"
+                required
+              ></b-form-input>
+              <b-form-invalid-feedback>Email không đúng định dạng</b-form-invalid-feedback>
             </b-input-group>
           </b-form-group>
 
@@ -26,7 +38,8 @@
               <b-input-group-prepend is-text>
                 <b-icon icon="phone"></b-icon>
               </b-input-group-prepend>
-              <b-form-input v-model="form.phone" type="number" placeholder="0123456789" required></b-form-input>
+              <b-form-input v-model="form.phone" :state="validationPhone" type="number" placeholder="0123456789" required></b-form-input>
+              <b-form-invalid-feedback>Số điện thoại không đúng</b-form-invalid-feedback>
             </b-input-group>
           </b-form-group>
 
@@ -35,7 +48,8 @@
               <b-input-group-prepend is-text>
                 <b-icon icon="credit-card"></b-icon>
               </b-input-group-prepend>
-              <b-form-input v-model="form.cardname" placeholder="Nguyen Van A" required></b-form-input>
+              <b-form-input v-model="form.cardname" :state="validationCardName" placeholder="Nguyen Van A" required></b-form-input>
+              <b-form-invalid-feedback>Tên chủ thẻ ít nhất 2 ký tự</b-form-invalid-feedback>
             </b-input-group>
           </b-form-group>
 
@@ -54,19 +68,10 @@
             <b-modal id="modal-prevent-closing" ref="modal" title="Kết quả đăng ký">
               <b-row>
                 <b-col sm="3">
-                  <h6 class="mt-0">Trạng thái:</h6>
-                </b-col>
-                <b-col sm="9">
-                  <p>{{ModalCreateCustomerMessage}}</p>
-                </b-col>
-              </b-row>
-
-              <b-row>
-                <b-col sm="3">
                   <h6 class="mt-0">Username:</h6>
                 </b-col>
                 <b-col sm="9">
-                  <p>{{ModalCreateCustomerUsername}}</p>
+                  <p>{{ModalCreateCustomer.userName}}</p>
                 </b-col>
               </b-row>
 
@@ -75,7 +80,7 @@
                   <h6 class="mt-0">Password:</h6>
                 </b-col>
                 <b-col sm="9">
-                  <p>{{ModalCreateCustomerPassword}}</p>
+                  <p>{{ModalCreateCustomer.password}}</p>
                 </b-col>
               </b-row>
 
@@ -84,7 +89,7 @@
                   <h6 class="mt-0">Số thẻ:</h6>
                 </b-col>
                 <b-col sm="9">
-                  <p>{{ModalCreateCustomerCardNumber}}</p>
+                  <p>{{ModalCreateCustomer.cardNumber}}</p>
                 </b-col>
               </b-row>
 
@@ -93,7 +98,7 @@
                   <h6 class="mt-0">Tên chủ thẻ:</h6>
                 </b-col>
                 <b-col sm="9">
-                  <p>{{ModalCreateCustomerCardName}}</p>
+                  <p>{{ModalCreateCustomer.cardName}}</p>
                 </b-col>
               </b-row>
             </b-modal>
@@ -116,25 +121,50 @@ export default {
         phone: "",
         cardname: "",
       },
+
       isLoading: false,
       showResult: false,
     };
   },
 
   computed: {
-    ...mapGetters([
-      "isSucceed",
-      "ErrorMessage",
-      "ModalCreateCustomerMessage",
-      "ModalCreateCustomerUsername",
-      "ModalCreateCustomerPassword",
-      "ModalCreateCustomerCardNumber",
-      "ModalCreateCustomerCardName",
-    ]),
+    ...mapGetters(["isSucceed", "ModalCreateCustomer"]),
+
+    validationName() {
+      return this.form.name == ""
+        ? null
+        : this.form.name.length > 2
+        ? true
+        : false;
+    },
+
+    validationCardName() {
+      return this.form.cardname == ""
+        ? null
+        : this.form.cardname.length > 2
+        ? true
+        : false;
+    },
+
+    validationPhone() {
+      return this.form.phone == ""
+        ? null
+        : this.form.phone.length >= 10 && this.form.phone.length <= 11
+        ? true
+        : false;
+    },
+
+    validationEmail: function () {
+      if (this.form.email == "") return null;
+      else {
+        var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(this.form.email);
+      }
+    },
   },
 
   methods: {
-    onSubmit(evt) {
+    async onSubmit(evt) {
       this.showResult = false;
       evt.preventDefault();
       this.isLoading = true;
@@ -144,29 +174,31 @@ export default {
         phone: this.form.phone,
         cardName: this.form.cardname,
       };
-      this.$store.dispatch("createCustomer", customer);
 
-      setTimeout(() => {
-        if (this.isSucceed === true) {
-          this.$bvToast.toast(
-            "Click Xem thông tin vừa tạo để biết thêm chi tiết",
-            {
-              title: `Tạo tài khoản thành công`,
-              variant: "success",
-              solid: true,
-            }
-          );
-        } else {
-          this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
-            title: `Tạo tài khoản thất bại`,
-            variant: "danger",
-            solid: true,
-          });
-        }
-
-        this.isLoading = false;
+      await this.$store.dispatch("createCustomer", customer);
+      this.isLoading = false;
+      if (this.isSucceed === true) {
         this.showResult = true;
-      }, 3000);
+        this.createToast(
+          "Click Xem thông tin vừa tạo để biết thêm chi tiết",
+          "Tạo tài khoản thành công",
+          "success"
+        );
+      } else {
+        this.createToast(
+          "Tài khoản đã được sử dụng",
+          "Tạo tài khoản thất bại",
+          "danger"
+        );
+      }
+    },
+
+    createToast(message, title, variant) {
+      this.$bvToast.toast(message, {
+        title: title,
+        variant: variant,
+        solid: true,
+      });
     },
   },
 };

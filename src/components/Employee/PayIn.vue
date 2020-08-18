@@ -8,7 +8,8 @@
               <b-input-group-prepend is-text>
                 <b-icon icon="credit-card"></b-icon>
               </b-input-group-prepend>
-              <b-form-input v-model="accNumber" type="number" required></b-form-input>
+              <b-form-input v-model="accNumber" :state="validationNumber" type="number" required></b-form-input>
+              <b-form-invalid-feedback>Số tài khoản có 16 ký tự</b-form-invalid-feedback>
             </b-input-group>
           </b-form-group>
 
@@ -17,7 +18,8 @@
               <b-input-group-prepend is-text>
                 <b-icon icon="wallet2"></b-icon>
               </b-input-group-prepend>
-              <b-form-input v-model="amount" required type="number"></b-form-input>
+              <b-form-input v-model="amount" :state="validationAmount" required type="number"></b-form-input>
+              <b-form-invalid-feedback>Tối thiểu 10.000đ, tối đa 10.000.000đ</b-form-invalid-feedback>
             </b-input-group>
           </b-form-group>
 
@@ -45,11 +47,26 @@ export default {
   },
 
   computed: {
-    ...mapGetters(["isSucceed", "ErrorMessage", "TotalBalance"]),
+    ...mapGetters(["isSucceed", "TotalBalance"]),
+    validationNumber() {
+      return this.accNumber == ""
+        ? null
+        : this.accNumber.length == 16
+        ? true
+        : false;
+    },
+
+    validationAmount() {
+      return this.amount == ""
+        ? null
+        : this.amount >= 10000 && this.amount <= 10000000
+        ? true
+        : false;
+    },
   },
 
   methods: {
-    onSubmit(evt) {
+    async onSubmit(evt) {
       evt.preventDefault();
       this.isLoading = true;
       const data = {
@@ -57,28 +74,22 @@ export default {
         balance: this.amount,
       };
 
-      this.$store.dispatch("payIn", data);
-      setTimeout(() => {
-        if (this.isSucceed === true) {
-          const textBalance = "Số dư: " + this.TotalBalance;
-          this.$bvToast.toast(
-            textBalance,
-            {
-              title: `Nạp tiền thành công`,
-              variant: "success",
-              solid: true,
-            }
-          );
-        } else {
-          this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
-            title: `Nạp tiền thất bại`,
-            variant: "danger",
-            solid: true,
-          });
-        }
-
-        this.isLoading = false;
-      }, 2000);
+      await this.$store.dispatch("payIn", data);
+      this.isLoading = false;
+      if (this.isSucceed === true) {
+        const textBalance = "Số dư: " + this.TotalBalance;
+        this.$bvToast.toast(textBalance, {
+          title: `Nạp tiền thành công`,
+          variant: "success",
+          solid: true,
+        });
+      } else {
+        this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
+          title: `Nạp tiền thất bại`,
+          variant: "danger",
+          solid: true,
+        });
+      }
     },
   },
 };

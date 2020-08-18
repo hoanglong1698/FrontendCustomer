@@ -62,7 +62,13 @@
               <b-input-group-prepend is-text>
                 <b-icon icon="person-lines-fill"></b-icon>
               </b-input-group-prepend>
-              <b-form-input v-model="name" placeholder="Nguyen Van A" required></b-form-input>
+              <b-form-input
+                v-model="name"
+                :state="validationName"
+                placeholder="Nguyen Van A"
+                required
+              ></b-form-input>
+              <b-form-invalid-feedback>Họ tên ít nhất 2 ký tự</b-form-invalid-feedback>
             </b-input-group>
           </b-form-group>
 
@@ -71,7 +77,13 @@
               <b-input-group-prepend is-text>
                 <b-icon icon="envelope-fill"></b-icon>
               </b-input-group-prepend>
-              <b-form-input v-model="email" placeholder="nguyenvana@gmail.com" required></b-form-input>
+              <b-form-input
+                v-model="email"
+                :state="validationEmail"
+                placeholder="nguyenvana@gmail.com"
+                required
+              ></b-form-input>
+              <b-form-invalid-feedback>Email không đúng định dạng</b-form-invalid-feedback>
             </b-input-group>
           </b-form-group>
 
@@ -81,6 +93,7 @@
                 <b-icon icon="phone"></b-icon>
               </b-input-group-prepend>
               <b-form-input v-model="phone" type="number" placeholder="0123456789" required></b-form-input>
+              <b-form-invalid-feedback>Số điện thoại không đúng</b-form-invalid-feedback>
             </b-input-group>
           </b-form-group>
 
@@ -168,10 +181,30 @@ export default {
   },
 
   computed: {
-    ...mapGetters(["isSucceed", "ErrorMessage", "ListEmployee"]),
+    ...mapGetters(["isSucceed", "ListEmployee"]),
 
     validation() {
       return this.confirmPassword === this.password;
+    },
+
+    validationName() {
+      return this.name == "" ? null : this.name.length > 2 ? true : false;
+    },
+
+    validationPhone() {
+      return this.form.phone == ""
+        ? null
+        : this.form.phone.length >= 10 && this.form.phone.length <= 11
+        ? true
+        : false;
+    },
+
+    validationEmail: function () {
+      if (this.email == "") return null;
+      else {
+        var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(this.email);
+      }
     },
   },
 
@@ -220,7 +253,7 @@ export default {
       this.phone = items[0].phone;
     },
 
-    onUpdate() {
+    async onUpdate() {
       if (this.id == "") {
         alert("Vui lòng chọn nhân viên");
         return;
@@ -234,87 +267,78 @@ export default {
         password: this.password,
         action: "UPDATE",
       };
-      this.$store.dispatch("updateEmployee", info);
+      await this.$store.dispatch("updateEmployee", info);
+      await this.$store.dispatch("getListEmployee");
 
-      setTimeout(() => {
-        this.$store.dispatch("getListEmployee");
-        if (this.isSucceed === true) {
-          this.$bvToast.toast("Làm mới danh sách nhân viên", {
-            title: `Cập nhật tài khoản thành công`,
-            variant: "success",
-            solid: true,
-          });
-        } else {
-          this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
-            title: `Cập nhật tài khoản thất bại`,
-            variant: "danger",
-            solid: true,
-          });
-        }
-
-        this.id = "";
-        this.name = "";
-        this.email = "";
-        this.phone = "";
-        this.password = "";
-        this.confirmPassword = "";
-        this.isLoading = false;
-        this.showRefresh = !this.showRefresh;
-        this.visibleUpdate = !this.visibleUpdate;
-        this.showDelete = !this.showDelete;
-      }, 3000);
-    },
-
-    onConfirmDelete() {
-      if (this.id == "") {
-        alert("Vui lòng chọn nhân viên");
-        return;
+      if (this.isSucceed === true) {
+        this.$bvToast.toast("Làm mới danh sách nhân viên", {
+          title: `Cập nhật tài khoản thành công`,
+          variant: "success",
+          solid: true,
+        });
+      } else {
+        this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
+          title: `Cập nhật tài khoản thất bại`,
+          variant: "danger",
+          solid: true,
+        });
       }
-      this.isLoading = true;
-      this.$store.dispatch("deleteEmployee", this.id);
-      setTimeout(() => {
-        this.$store.dispatch("getListEmployee");
-        if (this.isSucceed === true) {
-          this.$bvToast.toast("Xem danh sách nhân viên để biết thêm chi tiết", {
-            title: `Xóa tài khoản thành công`,
-            variant: "success",
-            solid: true,
-          });
-        } else {
-          this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
-            title: `Xóa tài khoản thất bại`,
-            variant: "danger",
-            solid: true,
-          });
-        }
 
-        this.isLoading = false;
-        this.id = "";
-        this.showRefresh = !this.showRefresh;
-        this.visibleDelete = !this.visibleDelete;
-        this.showUpdate = !this.showUpdate;
-      }, 3000);
+      this.id = "";
+      this.name = "";
+      this.email = "";
+      this.phone = "";
+      this.password = "";
+      this.confirmPassword = "";
+      this.isLoading = false;
+      this.showRefresh = !this.showRefresh;
+      this.visibleUpdate = !this.visibleUpdate;
+      this.showDelete = !this.showDelete;
     },
 
-    onRefresh() {
+    async onConfirmDelete(bvModalEvt) {
+      bvModalEvt.preventDefault();
       this.isLoading = true;
-      this.$store.dispatch("getListEmployee");
-      setTimeout(() => {
-        if (this.isSucceed === true) {
-          this.$bvToast.toast("Xem danh sách nhân viên để biết thêm chi tiết", {
-            title: `Làm mới danh sách nhân viên thành công`,
-            variant: "success",
-            solid: true,
-          });
-        } else {
-          this.$bvToast.toast("Vui lòng thử lại sau", {
-            title: `Làm mới danh sách nhân viên thất bại`,
-            variant: "danger",
-            solid: true,
-          });
-        }
-        this.isLoading = false;
-      }, 2000);
+      await this.$store.dispatch("deleteEmployee", this.id);
+      await this.$store.dispatch("getListEmployee");
+      this.isLoading = false;
+      this.id = "";
+      this.showRefresh = !this.showRefresh;
+      this.visibleDelete = !this.visibleDelete;
+      this.showUpdate = !this.showUpdate;
+
+      if (this.isSucceed === true) {
+        this.$bvToast.toast("Xem danh sách nhân viên để biết thêm chi tiết", {
+          title: `Xóa tài khoản thành công`,
+          variant: "success",
+          solid: true,
+        });
+      } else {
+        this.$bvToast.toast("Vui lòng kiểm tra lại thông tin đã nhập", {
+          title: `Xóa tài khoản thất bại`,
+          variant: "danger",
+          solid: true,
+        });
+      }
+    },
+
+    async onRefresh() {
+      this.isLoading = true;
+      await this.$store.dispatch("getListEmployee");
+      this.isLoading = false;
+      if (this.isSucceed === true) {
+        this.$bvToast.toast("Xem danh sách nhân viên để biết thêm chi tiết", {
+          title: `Làm mới danh sách nhân viên thành công`,
+          variant: "success",
+          solid: true,
+        });
+      } else {
+        this.$bvToast.toast("Vui lòng thử lại sau", {
+          title: `Làm mới danh sách nhân viên thất bại`,
+          variant: "danger",
+          solid: true,
+        });
+      }
     },
 
     onClickDelete() {
