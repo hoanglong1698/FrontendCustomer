@@ -198,10 +198,7 @@ export default new Vuex.Store({
                 "cardNumber": "Chưa có giao dịch nào !",
               }
             ]
-            setTimeout(() => {
-              ctx.commit('TRANSACTIONS', data);
-            }, 1500);
-
+            ctx.commit('TRANSACTIONS', data);
           }
         })
         .catch(function (error) {
@@ -310,11 +307,11 @@ export default new Vuex.Store({
             }
             const data = response.data.data.transactions.flatMap(item => item.transactionMerchants)
             const result = data.map(item => {
-              if (item.merchantId == 1) {
-                item.merchantName = "pgpbank";
+              if (item.merchantId == 2) {
+                item.merchantName = "PGP Bank";
               }
               if (item.merchantId == 3) {
-                item.merchantName = "HHL Bank";
+                item.merchantName = "RSA Bank";
               }
               return item;
             })
@@ -326,10 +323,7 @@ export default new Vuex.Store({
                 "content": "Chưa có giao dịch nào !",
               }
             ]
-            setTimeout(() => {
-              ctx.commit('PARTNERTRANSACTIONS', data);
-            }, 1500);
-
+            ctx.commit('PARTNERTRANSACTIONS', data);
           }
         })
         .catch(function (error) {

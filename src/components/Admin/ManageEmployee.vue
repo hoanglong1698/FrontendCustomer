@@ -296,8 +296,7 @@ export default {
       this.showDelete = !this.showDelete;
     },
 
-    async onConfirmDelete(bvModalEvt) {
-      bvModalEvt.preventDefault();
+    async onConfirmDelete() {
       this.isLoading = true;
       await this.$store.dispatch("deleteEmployee", this.id);
       await this.$store.dispatch("getListEmployee");

@@ -38,7 +38,13 @@
               <b-input-group-prepend is-text>
                 <b-icon icon="phone"></b-icon>
               </b-input-group-prepend>
-              <b-form-input v-model="form.phone" :state="validationPhone" type="number" placeholder="0123456789" required></b-form-input>
+              <b-form-input
+                v-model="form.phone"
+                :state="validationPhone"
+                type="number"
+                placeholder="0123456789"
+                required
+              ></b-form-input>
               <b-form-invalid-feedback>Số điện thoại không đúng</b-form-invalid-feedback>
             </b-input-group>
           </b-form-group>
@@ -48,7 +54,12 @@
               <b-input-group-prepend is-text>
                 <b-icon icon="credit-card"></b-icon>
               </b-input-group-prepend>
-              <b-form-input v-model="form.cardname" :state="validationCardName" placeholder="Nguyen Van A" required></b-form-input>
+              <b-form-input
+                v-model="form.cardname"
+                :state="validationCardName"
+                placeholder="Nguyen Van A"
+                required
+              ></b-form-input>
               <b-form-invalid-feedback>Tên chủ thẻ ít nhất 2 ký tự</b-form-invalid-feedback>
             </b-input-group>
           </b-form-group>
@@ -65,7 +76,7 @@
               v-b-modal.modal-prevent-closing
             >Xem thông tin tài khoản vừa tạo</b-button>
 
-            <b-modal id="modal-prevent-closing" ref="modal" title="Kết quả đăng ký">
+            <b-modal id="modal-prevent-closing" ref="modal" title="Kết quả đăng ký" @ok="printInfo">
               <b-row>
                 <b-col sm="3">
                   <h6 class="mt-0">Username:</h6>
@@ -111,7 +122,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-
+import { jsPDF } from "jspdf";
 export default {
   data() {
     return {
@@ -193,6 +204,24 @@ export default {
       }
     },
 
+    printInfo() {
+      const doc = new jsPDF("0", "px", "a4");
+      doc.setFontSize(18);
+      doc.text(
+        "LH BANK \n\nThong tin tai khoan \n    Username: " +
+          this.ModalCreateCustomer.userName +
+          "\n    Password: " +
+          this.ModalCreateCustomer.password +
+          "\n    So tai khoan: " +
+          this.ModalCreateCustomer.cardNumber +
+          "\n    Ten chu the: " +
+          this.ModalCreateCustomer.cardName +
+          "\n\nCam on quy khach da su dung dich vu cua LH Bank!",
+        20,
+        20
+      );
+      doc.save(this.ModalCreateCustomer.cardNumber);
+    },
     createToast(message, title, variant) {
       this.$bvToast.toast(message, {
         title: title,

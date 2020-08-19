@@ -44,8 +44,8 @@ export default {
       to: "",
       options: [
         { value: "0", text: "Tất cả" },
-        { value: "1", text: "Ngân hàng pgpbank" },
-        { value: "3", text: "Ngân hàng HHL Bank" },
+        { value: "2", text: "Ngân hàng PGP Bank" },
+        { value: "3", text: "Ngân hàng RSA Bank" },
       ],
       isLoading: false,
       Fields: [],

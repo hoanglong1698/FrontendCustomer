@@ -61,7 +61,7 @@
               v-b-modal.modal-prevent-closing
             >Xem thông tin tài khoản vừa tạo</b-button>
 
-            <b-modal id="modal-prevent-closing" ref="modal" title="Kết quả đăng ký">
+            <b-modal id="modal-prevent-closing" ref="modal" title="Kết quả đăng ký" @ok="printInfo">
               <b-row>
                 <b-col sm="3">
                   <h6 class="mt-0">Username:</h6>
@@ -116,7 +116,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-
+import { jsPDF } from "jspdf";
 export default {
   data() {
     return {
@@ -190,6 +190,26 @@ export default {
           solid: true,
         });
       }
+    },
+
+    printInfo() {
+      const doc = new jsPDF("0", "px", "a4");
+      doc.setFontSize(18);
+      doc.text(
+        "LH BANK \n\nThong tin tai khoan nhan vien \n    Username: " +
+          this.ModalCreateEmployee.userName +
+          "\n    Password: " +
+          this.ModalCreateEmployee.password +
+          "\n    Ho ten: " +
+          this.form.name +
+          "\n    Email: " +
+          this.form.email +
+          "\n    Dien thoai: " +
+          this.form.phone,
+        20,
+        20
+      );
+      doc.save("NV_" +this.ModalCreateEmployee.userName);
     },
   },
 };
