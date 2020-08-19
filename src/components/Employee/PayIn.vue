@@ -19,7 +19,7 @@
                 <b-icon icon="wallet2"></b-icon>
               </b-input-group-prepend>
               <b-form-input v-model="amount" :state="validationAmount" required type="number"></b-form-input>
-              <b-form-invalid-feedback>Tối thiểu 10.000đ, tối đa 10.000.000đ</b-form-invalid-feedback>
+              <b-form-invalid-feedback>Tối thiểu 10.000đ, tối đa 20.000.000đ</b-form-invalid-feedback>
             </b-input-group>
           </b-form-group>
 
@@ -59,7 +59,7 @@ export default {
     validationAmount() {
       return this.amount == ""
         ? null
-        : this.amount >= 10000 && this.amount <= 10000000
+        : this.amount >= 10000 && this.amount <= 20000000
         ? true
         : false;
     },

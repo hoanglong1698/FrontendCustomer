@@ -64,7 +64,7 @@ export default {
       },
       isLoading: false,
       showError: false,
-      isCaptchaVerified: true,
+      isCaptchaVerified: false,
     };
   },
   methods: {
