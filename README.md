@@ -1,5 +1,8 @@
 # FrontendCustomer
 
+A website for bank employee. Employee can create customer account, pay in, view history of customer account.
+Admin can CRUD employee, view history transactions of partner bank.
+
 ## Project setup
 ```
 npm install
